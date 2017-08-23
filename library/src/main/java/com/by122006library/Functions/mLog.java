@@ -1,7 +1,6 @@
 package com.by122006library.Functions;
 
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -244,7 +243,6 @@ public class mLog {
         }
     }
 
-    @NonNull
     private static String getTag() {
         String tag = "unKnown";
         StackTraceElement[] callers = Thread.currentThread().getStackTrace();
