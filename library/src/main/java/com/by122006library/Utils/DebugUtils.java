@@ -2,7 +2,9 @@ package com.by122006library.Utils;
 
 import android.util.Log;
 
-import com.by122006library.BuildConfig;
+
+import com.by122006.library.BuildConfig;
+import com.by122006library.Functions.mLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -23,8 +25,8 @@ public class DebugUtils {
      * Created by 122006 on 2017/2/23.
      */
     public static void runningDurtime() {
-        if (!BuildConfig.DEBUG) return;
-        StackTraceElement caller = com.by122006library.Functions.mLog.getCallerStackTraceElement();
+        if (!DebugUtils.isDebugBuild()) return;
+        StackTraceElement caller = mLog.getCallerStackTraceElement();
         String tag = caller.getClassName() + "." + caller.getMethodName();
         ArrayList<HashMap<String, Object>> list = runningDurtimeData.get(tag);
         if (list == null) {
@@ -64,9 +66,9 @@ public class DebugUtils {
         if (needClear) list.clear();
         list.add(map);
         if (list.size() == 1) {
-            Log.i(com.by122006library.Functions.mLog.generateTag(caller), "============性能断点工具=============");
+            Log.i(mLog.generateTag(caller), "============性能断点工具=============");
         }
-        String text = com.by122006library.Functions.mLog.generateTag(caller) + "  (" + list.size() + ") ：[";
+        String text = mLog.generateTag(caller) + "  (" + list.size() + ") ：[";
         try {
             text += "" + "use:" + (System.currentTimeMillis() - (long) list.get(list.size() - 2).get("time")+"ms ");
         } catch (Exception e) {
@@ -81,14 +83,13 @@ public class DebugUtils {
         if (complexNum > 1)
             text += "  ;" + " cycle：[ (" + complexNum + ")  first:" + (System.currentTimeMillis() - firstCycleTime) + "ms  last:" + (System.currentTimeMillis() - lastCycleTime) + "ms ]";
 
-        Log.i(com.by122006library.Functions.mLog.generateTag(caller), text);
+        Log.i(mLog.generateTag(caller), text);
 
 
     }
     static Boolean sDebug;
 
     /**
-     * Is {@link BuildConfig#DEBUG} still broken for library projects? If so, use this.</p>
      *
      * See: https://code.google.com/p/android/issues/detail?id=52962</p>
      *
