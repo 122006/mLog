@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -34,7 +35,7 @@ public class mLog {
         }
     };
     private static final String FLAG_NATIVE_METHOD = "at java.lang.reflect.Method.invoke(Native Method)";
-    private static final String INVISIBLE =FLAG_NATIVE_METHOD;
+    private static final String INVISIBLE = FLAG_NATIVE_METHOD;
     public static String customTagPrefix = "";    // 自定义Tag的前缀，可以是作者名
     public static boolean isSaveLog = false;    // 是否把保存日志到SD卡中
     /**
@@ -62,11 +63,12 @@ public class mLog {
         setOutLog(ReflectionUtils.getSmallClassName(getCallerStackTraceElement().getClassName()) + ".");
     }
 
-     /**
+    /**
      * 设置该方法的Log不会被显示
      */
     public static void setMethodOutLog() {
-        setOutLog(ReflectionUtils.getSmallClassName(getCallerStackTraceElement().getClassName()) + "." + ReflectionUtils.getSmallClassName(getCallerStackTraceElement().getMethodName()) + "()");
+        setOutLog(ReflectionUtils.getSmallClassName(getCallerStackTraceElement().getClassName()) + "." +
+                ReflectionUtils.getSmallClassName(getCallerStackTraceElement().getMethodName()) + "()");
     }
 
 
@@ -202,6 +204,7 @@ public class mLog {
             point(LOG_PATH, tag, e.getMessage());
         }
     }
+
     public static void d(Object contentObj, Object... data) {
         if (!DebugUtils.isDebugBuild()) {
             return;
@@ -218,6 +221,7 @@ public class mLog {
             point(LOG_PATH, tag, content);
         }
     }
+
     public static void i(Object contentObj, Object... data) {
         if (!DebugUtils.isDebugBuild()) {
             return;
@@ -242,6 +246,56 @@ public class mLog {
             point(LOG_PATH, tag, content);
         }
     }
+    public static void object(Object object){
+        object(object,FieldGetDepth.SelfAll);
+    }
+    public static void object(Object object, FieldGetDepth fieldGetDepth) {
+        if (!DebugUtils.isDebugBuild()) {
+            return;
+        }
+        Field[] f = null;
+        if (fieldGetDepth == null) fieldGetDepth = FieldGetDepth.AllPublic;
+        if (fieldGetDepth == FieldGetDepth.AllPublic) f = object.getClass().getFields();
+        if (fieldGetDepth == FieldGetDepth.SelfAll) f = object.getClass().getDeclaredFields();
+        String fields[] = new String[f.length];
+        for (int i = 0; i < fields.length; i++) {
+            try {
+                if (!f[i].isAccessible()) f[i].setAccessible(true);
+                Object value = f[i].get(object);
+                String show = "";
+                if (value instanceof Object[]) {
+                    show = objArray2Str((Object[]) value);
+                } else {
+                    if (object instanceof String) show = "\"" + String.valueOf(value) + "\"";
+                    else
+                        show = String.valueOf(value);
+                }
+                fields[i] = f[i].getName() + "=" + show;
+            } catch (Exception e) {
+                fields[i] = f[i].getName() + "=" + e.getMessage();
+            }
+        }
+
+        more(object.getClass().getName() + " details:", object);
+    }
+
+    private static String objArray2Str(Object[] array) {
+        String[] ss = new String[array.length];
+        String str = "[";
+        for (Object obj : array) {
+            if (obj instanceof Object) {
+                if (obj instanceof String) str = "\"" + String.valueOf(obj) + "\"";
+                else
+                    str = String.valueOf(obj);
+            }
+            if (obj instanceof Object[]) str += "\n" + objArray2Str((Object[]) obj) + ",";
+        }
+        if (str.endsWith(",")) str = str.substring(0, str.length() - 1);
+
+        str += "]";
+        return str;
+    }
+
 
     private static String getTag() {
         String tag = "unKnown";
@@ -315,9 +369,7 @@ public class mLog {
      * 调用该方法后原生Log.x(String,String)会被重定位到对应mLog方法中<br>
      * 该方法在程序中仅可使用一次，请不要重复调用该方法
      *
-     * @param replageStyle 需要替换的方法名集合字符串 <br>
-     *                     eg."widev" 或 "wv" 或 "w,v,i" 或 "w;v;i"<br>
-     *                     分隔符会自动忽略<br>顺序无关<br>不可重复
+     * @param replageStyle 需要替换的方法名集合字符串 <br> eg."widev" 或 "wv" 或 "w,v,i" 或 "w;v;i"<br> 分隔符会自动忽略<br>顺序无关<br>不可重复
      */
     public static void autoReplaceLog(String replageStyle) {
         if (!DebugUtils.isDebugBuild()) {
@@ -325,10 +377,10 @@ public class mLog {
         }
         String version = System.getProperty("java.vm.version");
         if (Integer.valueOf(version.substring(0, version.indexOf("."))) < 2) {
-           mLog.i("autoReplaceLog() 不支持对Dalvik的修改");
+            mLog.i("autoReplaceLog() 不支持对Dalvik的修改");
             return;
         }
-        mLog.i("正在替换系统Log，替换参数:"+replageStyle);
+        mLog.i("正在替换系统Log，替换参数:" + replageStyle);
         replageStyle = replageStyle.toLowerCase();
 
         for (int i = 0; i < replageStyle.length(); i++) {
@@ -338,19 +390,19 @@ public class mLog {
                 try {
                     switch (c) {
                         case "i":
-                            Log.i("初始化", String.format("正在初始化\"Log.%s()\"方法", c)+INVISIBLE);
+                            Log.i("初始化", String.format("正在初始化\"Log.%s()\"方法", c) + INVISIBLE);
                             break;
                         case "w":
-                            Log.w("初始化", String.format("正在初始化\"Log.%s()\"方法", c)+INVISIBLE);
+                            Log.w("初始化", String.format("正在初始化\"Log.%s()\"方法", c) + INVISIBLE);
                             break;
                         case "e":
-                            Log.e("初始化", String.format("正在初始化\"Log.%s()\"方法", c)+INVISIBLE);
+                            Log.e("初始化", String.format("正在初始化\"Log.%s()\"方法", c) + INVISIBLE);
                             break;
                         case "v":
-                            Log.v("初始化", String.format("正在初始化\"Log.%s()\"方法", c)+INVISIBLE);
+                            Log.v("初始化", String.format("正在初始化\"Log.%s()\"方法", c) + INVISIBLE);
                             break;
                         case "d":
-                            Log.d("初始化", String.format("正在初始化\"Log.%s()\"方法", c)+INVISIBLE);
+                            Log.d("初始化", String.format("正在初始化\"Log.%s()\"方法", c) + INVISIBLE);
                             break;
                     }
                 } catch (NoSuchMethodError e) {
@@ -358,24 +410,25 @@ public class mLog {
 
                 }
                 Method m_o = ReflectionUtils.getDeclaredMethod(Log.class, c, String.class, String.class);
-                Method m_n = ReflectionUtils.getDeclaredMethod(mLog.class, c+"_ForReplace", String.class, String.class);
-                Hook.hook(m_o,m_n);
+                Method m_n = ReflectionUtils.getDeclaredMethod(mLog.class, c + "_ForReplace", String.class, String
+                        .class);
+                Hook.hook(m_o, m_n);
                 try {
                     switch (c) {
                         case "i":
-                            Log.i("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c)+INVISIBLE);
+                            Log.i("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c) + INVISIBLE);
                             break;
                         case "w":
-                            Log.w("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c)+INVISIBLE);
+                            Log.w("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c) + INVISIBLE);
                             break;
                         case "e":
-                            Log.e("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c)+INVISIBLE);
+                            Log.e("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c) + INVISIBLE);
                             break;
                         case "v":
-                            Log.v("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c)+INVISIBLE);
+                            Log.v("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c) + INVISIBLE);
                             break;
                         case "d":
-                            Log.d("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c)+INVISIBLE);
+                            Log.d("如果看到该tag，说明替换失败", String.format("\"Log.%s()\"方法替换成功", c) + INVISIBLE);
                             break;
                     }
                 } catch (NoSuchMethodError e) {
@@ -468,7 +521,7 @@ public class mLog {
         }
 
         String tag = getTag();
-        String content=contentObj==null?"null":contentObj.toString();
+        String content = contentObj == null ? "null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.v(tag, content);
         } else {
@@ -485,7 +538,7 @@ public class mLog {
         }
 
         String tag = getTag();
-        String content=contentObj==null?"null":contentObj.toString();
+        String content = contentObj == null ? "null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.v(tag, content, e);
         } else {
@@ -501,7 +554,7 @@ public class mLog {
             return;
         }
         String tag = getTag();
-        String content=contentObj==null?"null":contentObj.toString();
+        String content = contentObj == null ? "null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.w(tag, content);
         } else {
@@ -518,7 +571,7 @@ public class mLog {
         }
 
         String tag = getTag();
-        String content=contentObj==null?"null":contentObj.toString();
+        String content = contentObj == null ? "null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.w(tag, content, e);
         } else {
@@ -552,7 +605,7 @@ public class mLog {
         }
 
         String tag = getTag();
-        String content=contentObj==null?"null":contentObj.toString();
+        String content = contentObj == null ? "null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.wtf(tag, content);
         } else {
@@ -569,7 +622,7 @@ public class mLog {
         }
 
         String tag = getTag();
-        String content=contentObj==null?"null":contentObj.toString();
+        String content = contentObj == null ? "null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.wtf(tag, content, e);
         } else {
@@ -701,23 +754,23 @@ public class mLog {
         }
 //        String[] strs=str.toString().split("\n");
 //        for(String s:strs){
-            switch (level) {
-                case Log.INFO:
-                    mLog.i(str.toString());
-                    break;
-                case Log.VERBOSE:
-                    mLog.v(str.toString());
-                    break;
-                case Log.DEBUG:
-                    mLog.d(str.toString());
-                    break;
-                case Log.WARN:
-                    mLog.w(str.toString());
-                    break;
-                case Log.ERROR:
-                    mLog.e(str.toString());
-                    break;
-            }
+        switch (level) {
+            case Log.INFO:
+                mLog.i(str.toString());
+                break;
+            case Log.VERBOSE:
+                mLog.v(str.toString());
+                break;
+            case Log.DEBUG:
+                mLog.d(str.toString());
+                break;
+            case Log.WARN:
+                mLog.w(str.toString());
+                break;
+            case Log.ERROR:
+                mLog.e(str.toString());
+                break;
+        }
 //        }
 
     }
@@ -748,7 +801,6 @@ public class mLog {
         return String.format("(%s:%d)", className, line);
     }
 
-
     public static StackTraceElement getCallerStackTraceElement() {
         return Thread.currentThread().getStackTrace()[4];
     }
@@ -756,7 +808,6 @@ public class mLog {
     public static StackTraceElement getCallerStackTraceElement(int off) {
         return Thread.currentThread().getStackTrace()[4 + off];
     }
-
 
     public static void point(String path, String tag, String msg) {
         if (isSDAva()) {
@@ -811,6 +862,10 @@ public class mLog {
     private static boolean isSDAva() {
         return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) || Environment
                 .getExternalStorageDirectory().exists();
+    }
+
+    public enum FieldGetDepth {
+        SelfAll, AllPublic
     }
 
     public interface CustomLogger {
