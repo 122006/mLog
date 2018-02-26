@@ -255,7 +255,6 @@ public class Hook {
     }
 
     static class Unsafe {
-
         static final String UNSAFE_CLASS = "sun.misc.Unsafe";
         static Object THE_UNSAFE = Reflection.get(null, UNSAFE_CLASS, "THE_ONE", null);
 

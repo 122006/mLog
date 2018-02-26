@@ -90,6 +90,7 @@ public class mLog {
             takeOutList.add("Hook.java");
             takeOutList.add("MyException.java");
             takeOutList.add("Thread.java");
+            takeOutList.add("Handler.java");
             return;
         }
         takeOutList.add(str);
@@ -112,6 +113,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
+        if (content==null) content="is null";
 
         String tag = getTag();
 
@@ -127,6 +129,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
+        if (content==null) content="is null";
 
         String tag = getTag();
 
@@ -141,7 +144,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-
+        if (content==null) content="is null";
         String tag = getTag();
 
         if (customLogger != null) {
@@ -158,7 +161,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-
+        if (content==null) content="is null";
         tag = getTag();
 
         if (customLogger != null) {
@@ -175,7 +178,6 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-
         String tag = getTag();
 
         if (customLogger != null) {
@@ -192,7 +194,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-
+        if (content==null) content="is null";
         String tag = getTag();
 
         if (customLogger != null) {
@@ -209,6 +211,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
+        if (contentObj==null) contentObj="is null";
         String content = contentObj.toString();
         content = String.format(content, data);
         String tag = getTag();
@@ -234,6 +237,7 @@ public class mLog {
             array((Object[]) contentObj);
             return;
         }
+        if (contentObj==null) contentObj="is null";
         String content = contentObj.toString();
         content = String.format(content, data);
         String tag = getTag();
@@ -253,6 +257,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
+        if (object==null) object="is null";
         Field[] f = null;
         if (fieldGetDepth == null) fieldGetDepth = FieldGetDepth.AllPublic;
         if (fieldGetDepth == FieldGetDepth.AllPublic) f = object.getClass().getFields();
@@ -280,8 +285,10 @@ public class mLog {
     }
 
     private static String objArray2Str(Object[] array) {
+        if (array==null) array=new Object[]{};
         String[] ss = new String[array.length];
         String str = "[";
+
         for (Object obj : array) {
             if (obj instanceof Object) {
                 if (obj instanceof String) str = "\"" + String.valueOf(obj) + "\"";
@@ -318,6 +325,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
+        if (contentObj==null) contentObj=new ArrayList();
         String content = "";
         for (Object object : contentObj) {
             content += object.toString() + " ; ";
@@ -338,6 +346,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
+        if (contentObj==null) contentObj=new Object[]{};
         String content = "";
         for (Object object : contentObj) {
             content += String.valueOf(object) + " ; ";
@@ -536,9 +545,8 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-
         String tag = getTag();
-        String content = contentObj == null ? "null" : contentObj.toString();
+        String content = contentObj == null ? "is null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.v(tag, content, e);
         } else {
@@ -554,7 +562,7 @@ public class mLog {
             return;
         }
         String tag = getTag();
-        String content = contentObj == null ? "null" : contentObj.toString();
+        String content = contentObj == null ? "is null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.w(tag, content);
         } else {
@@ -571,7 +579,7 @@ public class mLog {
         }
 
         String tag = getTag();
-        String content = contentObj == null ? "null" : contentObj.toString();
+        String content = contentObj == null ? "is null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.w(tag, content, e);
         } else {
@@ -605,7 +613,7 @@ public class mLog {
         }
 
         String tag = getTag();
-        String content = contentObj == null ? "null" : contentObj.toString();
+        String content = contentObj == null ? "is null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.wtf(tag, content);
         } else {
@@ -622,7 +630,7 @@ public class mLog {
         }
 
         String tag = getTag();
-        String content = contentObj == null ? "null" : contentObj.toString();
+        String content = contentObj == null ? "is null" : contentObj.toString();
         if (customLogger != null) {
             customLogger.wtf(tag, content, e);
         } else {
