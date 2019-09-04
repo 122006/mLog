@@ -23,13 +23,13 @@ import java.util.Formatter;
 import java.util.Locale;
 
 /**
- * Log工具，类似android.util.Log。 tag自动产生，格式: customTagPrefix:className.methodName(Line:lineNumber),
+ * Log工具，类似android.util.Log。<p>tag自动产生，格式: customTagPrefix:className.methodName(Line:lineNumber),<p>
  * customTagPrefix为空时只输出：className.methodName(Line:lineNumber)。
  */
 public class mLog {
-
     public static final String LOG_PATH = Environment.getExternalStorageDirectory().getPath(); // SD卡中的根目录
     private static final ThreadLocal<ReusableFormatter> thread_local_formatter = new ThreadLocal<ReusableFormatter>() {
+        @Override
         protected ReusableFormatter initialValue() {
             return new ReusableFormatter();
         }
@@ -113,7 +113,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-        if (content==null) content="is null";
+        if (content == null) content = "is null";
 
         String tag = getTag();
 
@@ -129,7 +129,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-        if (content==null) content="is null";
+        if (content == null) content = "is null";
 
         String tag = getTag();
 
@@ -144,7 +144,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-        if (content==null) content="is null";
+        if (content == null) content = "is null";
         String tag = getTag();
 
         if (customLogger != null) {
@@ -161,7 +161,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-        if (content==null) content="is null";
+        if (content == null) content = "is null";
         tag = getTag();
 
         if (customLogger != null) {
@@ -194,7 +194,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-        if (content==null) content="is null";
+        if (content == null) content = "is null";
         String tag = getTag();
 
         if (customLogger != null) {
@@ -211,9 +211,9 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-        if (contentObj==null) contentObj="is null";
+        if (contentObj == null) contentObj = "is null";
         String content = contentObj.toString();
-        content = data.length==0?content:String.format(content, data);
+        content = data.length == 0 ? content : String.format(content, data);
         String tag = getTag();
         if (customLogger != null) {
             customLogger.d(tag, content);
@@ -237,9 +237,9 @@ public class mLog {
             array((Object[]) contentObj);
             return;
         }
-        if (contentObj==null) contentObj="is null";
+        if (contentObj == null) contentObj = "is null";
         String content = contentObj.toString();
-        content = data.length==0?content:String.format(content, data);
+        content = data.length == 0 ? content : String.format(content, data);
         String tag = getTag();
         if (customLogger != null) {
             customLogger.i(tag, content);
@@ -250,14 +250,16 @@ public class mLog {
             point(LOG_PATH, tag, content);
         }
     }
-    public static void object(Object object){
-        object(object,FieldGetDepth.SelfAll);
+
+    public static void object(Object object) {
+        object(object, FieldGetDepth.SelfAll);
     }
+
     public static void object(Object object, FieldGetDepth fieldGetDepth) {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-        if (object==null) object="is null";
+        if (object == null) object = "is null";
         Field[] f = null;
         if (fieldGetDepth == null) fieldGetDepth = FieldGetDepth.AllPublic;
         if (fieldGetDepth == FieldGetDepth.AllPublic) f = object.getClass().getFields();
@@ -285,7 +287,7 @@ public class mLog {
     }
 
     private static String objArray2Str(Object[] array) {
-        if (array==null) array=new Object[]{};
+        if (array == null) array = new Object[]{};
         String[] ss = new String[array.length];
         String str = "[";
 
@@ -325,7 +327,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-        if (contentObj==null) contentObj=new ArrayList();
+        if (contentObj == null) contentObj = new ArrayList();
         String content = "";
         for (Object object : contentObj) {
             content += object.toString() + " ; ";
@@ -346,7 +348,7 @@ public class mLog {
         if (!DebugUtils.isDebugBuild()) {
             return;
         }
-        if (contentObj==null) contentObj=new Object[]{};
+        if (contentObj == null) contentObj = new Object[]{};
         String content = "";
         for (Object object : contentObj) {
             content += String.valueOf(object) + " ; ";
@@ -386,7 +388,7 @@ public class mLog {
         }
         String version = System.getProperty("java.vm.version");
         if (Integer.valueOf(version.substring(0, version.indexOf("."))) < 2) {
-            mLog.i("autoReplaceLog() 不支持对Dalvik的修改");
+            mLog.i("autoReplaceLog()不支持对Dalvik的修改");
             return;
         }
         mLog.i("正在替换系统Log，替换参数:" + replageStyle);
