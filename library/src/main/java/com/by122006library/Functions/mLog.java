@@ -213,7 +213,7 @@ public class mLog {
         }
         if (contentObj==null) contentObj="is null";
         String content = contentObj.toString();
-        content = String.format(content, data);
+        content = data.length==0?content:String.format(content, data);
         String tag = getTag();
         if (customLogger != null) {
             customLogger.d(tag, content);
@@ -239,7 +239,7 @@ public class mLog {
         }
         if (contentObj==null) contentObj="is null";
         String content = contentObj.toString();
-        content = String.format(content, data);
+        content = data.length==0?content:String.format(content, data);
         String tag = getTag();
         if (customLogger != null) {
             customLogger.i(tag, content);
